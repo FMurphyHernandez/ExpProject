@@ -1,0 +1,20 @@
+##Quadratic Discriminant Analysis
+
+x=read.csv('EXP.PREPAGO.csv')
+require(MASS)
+z=qda(formula=EXP~.,data=x)
+
+
+w=predict(object=z,newdata=data.frame(x))
+a=w$class
+head(a)
+b=as.numeric(a)-1
+sum(b)
+y=(x$EXP==b & b==1)
+q=as.numeric(y)
+sum(q)
+
+
+
+
+
