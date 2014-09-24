@@ -1,0 +1,22 @@
+##Linear Discriminant Analysis with a Treshold
+
+x=read.csv('EXP.PREPAGO.RESPALDO.csv')
+x=x[rowSum(x[,2:7])>100,]
+sum(x[,x$EXP])/9
+x.scaled=scale(x[,-1])
+y=cbind(x[,1],x.scaled)
+y=data.frame(y)
+colnames(y)[1]='EXP'
+require(MASS)
+z=lda(formula=EXP~.,data=y,prior=c(.75,.25))
+
+
+
+w=predict(object=z,newdata=data.frame(x.scaled))
+a=w$class
+head(a)
+b=as.numeric(a)-1
+sum(b)
+r=(x$EXP==b & b==1)
+q=as.numeric(r)
+sum(q)
