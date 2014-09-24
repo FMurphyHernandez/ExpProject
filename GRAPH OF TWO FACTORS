@@ -1,0 +1,5 @@
+##GRAPH OF TWO FACTORS
+
+x=read.csv("COMP.csv")
+plot(x[,2:3],col=ifelse(x[,1]==1,"red","blue"),pch=ifelse(x[,1]==1, 19, 1))
+
