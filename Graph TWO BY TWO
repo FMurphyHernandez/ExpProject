@@ -1,0 +1,11 @@
+##Graph TWO BY TWO
+
+
+x=read.csv('EXP.PREPAGO.csv')
+x.scaled=scale(x[,-1])
+y=cbind(x[,1],x.scaled)
+y=data.frame(y)
+colnames(y)[1]='EXP'
+require(klaR)
+y[,1]=as.factor(y[,1])
+partimat(EXP ~ ., data = y, method = "lda")
