@@ -1,0 +1,18 @@
+##Quadratic Discriminant Analysis with a Treshold
+
+x=read.csv('EXP.PREPAGO.csv')
+x=x[x$ARPU_VOICE+x$ARPU_SMS+x$ARPU_OTHERS+x$ARPU_INTER_SMS+x$ARPU_DATA+x$ARPU_INTER_SMS>100,]
+sum(x[,x$EXP])/9
+require(MASS)
+z=qda(formula=EXP~.,data=x)
+
+
+w=predict(object=z,newdata=data.frame(x))
+a=w$class
+head(a)
+b=as.numeric(a)-1
+sum(b)
+y=(x$EXP==b & b==1)
+q=as.numeric(y)
+sum(q)
+
