@@ -41,7 +41,7 @@ LDA[i,2]=e/c
   plot(X,LDA[,2])
   
   
-  plot(LDA)
-  X=1:(n-1)
-  lines(X,LDA[,1], col=2)
+
+   X=(1:(n-1))/n
+  plot(X,LDA[,1], col=3)
   lines(X,LDA[,2],col=5)
