@@ -4,6 +4,9 @@ for(i in 1:ncol(x))
 x[,i]=as.numeric(x[,i])
 colnames(x)[1]="EXP"
 library(moments)
-Q=matrix(1:(nrow(x)*3),ncol=3)
-for(i in 1:nrow(x))
-Q[i,]=all.moments(x[i,3:5],3)[-1]
+NQUEJAS1=rowMeans(x[,3:5])
+NQUEJAS2=apply(x[,3:5],1,var)
+NQUEJAS3=apply(x[,3:5],1,median)
+x$QUEJAS1=NQUEJAS1
+x$QUEJAS2=NQUEJAS2
+x$QUEJAS3=NQUEJAS3
