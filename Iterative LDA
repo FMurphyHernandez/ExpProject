@@ -1,6 +1,6 @@
 ##Iterative LDA
 ------------------------------------
-n=7
+n=5
 P=(1:n)/n
 
 x=read.csv('MOD_EXP.csv')
