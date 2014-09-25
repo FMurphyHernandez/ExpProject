@@ -11,7 +11,7 @@ require(MASS)
 n=100
 P=(1:n)/n
 c=sum(x$EXP)
-LDA=matrix(data=NA,nrow=nrow(x),ncol=2)
+LDA=matrix(data=NA,nrow=n-1,ncol=2)
 for(i in 1:(n-1))
   {
   z=lda(formula=EXP~.,data=y, prior=c(P[i],1-P[i]))
@@ -26,3 +26,18 @@ e=sum(q)
 LDA[i,1]=e/d
 LDA[i,2]=e/c
   }
+  
+  plot(LDA)
+  
+  
+  X=(1:(n-1))/n
+  plot(X,LDA[,1])
+  
+  X=(1:(n-1))/n
+  plot(X,LDA[,2])
+  
+  
+  plot(LDA)
+  X=1:(n-1)
+  lines(X,LDA[,1], col=2)
+  lines(X,LDA[,2],col=5)
