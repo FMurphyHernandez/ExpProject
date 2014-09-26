@@ -47,7 +47,7 @@ q=as.numeric(r)
 sum(q) 
 100*sum(q)/sum(b)
 sum(b)*15000000/10000
-
+(sum(q)/sum(b))(sum(b)*15000000/10000)
 
 ### The lowest predictive variable
 -----------------------------------------------------------
@@ -93,4 +93,5 @@ r=(x$EXP==b & b==1)
 q=as.numeric(r)
 sum(q) 
 100*sum(q)/sum(b)
-  
+sum(b)*15000000/10000
+(sum(q)/sum(b))(sum(b)*15000000/10000)
