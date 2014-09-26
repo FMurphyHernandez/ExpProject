@@ -1,0 +1,67 @@
+Inception LDA
+-----------------------------------------------------------------
+
+n=5
+m=3
+
+
+P=(1:n)/n
+
+x=read.csv('MOD_EXP.csv')
+for(i in 1:ncol(x))
+x[,i]=as.numeric(x[,i])
+colnames(x)[1]="EXP"
+x.scaled=scale(x[,-1])
+y=cbind(x[,1],x.scaled)
+y=data.frame(y)
+colnames(y)[1]='EXP'
+require(MASS)
+z=lda(formula=EXP~.,data=y, prior=c(P[1],1-P[1]))
+w=predict(object=z,newdata=data.frame(x.scaled))
+a=w$class
+
+n=n-1
+
+for(i in 1:n){
+x=x[a==1,]
+x.scaled=scale(x[,-1])
+y=cbind(x[,1],x.scaled)
+y=data.frame(y)
+colnames(y)[1]='EXP'
+z=lda(formula=EXP~.,data=y, prior=c(P[i+1],1-P[i+1]))
+w=predict(object=z,newdata=data.frame(x.scaled))
+a=w$class
+  }
+
+for(j in 1:(m-1)){
+
+
+P=(1:n)/n
+g=w
+x=read.csv('MOD_EXP.csv')
+for(i in 1:ncol(x))
+x[,i]=as.numeric(x[,i])
+colnames(x)[1]="EXP"
+x.scaled=scale(x[,-1])
+y=cbind(x[,1],x.scaled)
+y=data.frame(y)
+colnames(y)[1]='EXP'
+require(MASS)
+z=lda(formula=EXP~.,data=y, prior=c(P[1],1-P[1]))
+w=predict(object=z,newdata=data.frame(x.scaled))
+a=w$class
+
+n=n-1
+
+for(i in 1:n){
+x=x[a==1,]
+x.scaled=scale(x[,-1])
+y=cbind(x[,1],x.scaled)
+y=data.frame(y)
+colnames(y)[1]='EXP'
+z=lda(formula=EXP~.,data=y, prior=c(P[i+1],1-P[i+1]))
+w=predict(object=z,newdata=data.frame(x.scaled))
+a=w$class
+  }
+}  
+  
