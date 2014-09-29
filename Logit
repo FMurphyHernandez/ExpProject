@@ -3,12 +3,16 @@ Logit
 
 x=read.csv('MOD_EXP.csv')
 colnames(x)[1]="EXP"
-z=sample(1:9999,100,FALSE)
+x=x[,-c(2,5,6,19)]
+z=sample(1:9999,9999,FALSE)
 y=glm(formula=EXP~.,data=x[z,],family='binomial')
-w=predict(object=y,newdata=x[,-1],type="response")
-a=w$class
-b=as.numeric(a)-1
-sum(b)
+w=predict(object=y,newdata=x[,-1],type='response')
+sum(x[z,]$EXP)
+ summary(w)
+b=x[w>.5,] 
+
 r=(x$EXP==b & b==1)
 q=as.numeric(r)
-sum(q)
+ sum(q)
+ 
+
