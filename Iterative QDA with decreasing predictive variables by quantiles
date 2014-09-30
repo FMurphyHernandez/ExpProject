@@ -1,0 +1,83 @@
+##Iterative QDA with decreasing predictive variables by quantiles
+-------------------------------------------------------------
+--------------------------------------------------------------
+### The greatest quantiles of the predictive variables
+-----------------------------------------------------------
+n=7
+P=(1:n)/n
+x=read.csv('MOD_EXP.csv')
+for(i in 1:ncol(x))
+x[,i]=as.numeric(x[,i])
+colnames(x)[1]="EXP"
+x.scaled=scale(x[,-1])
+y=cbind(x[,1],x.scaled)
+y=data.frame(y)
+colnames(y)[1]='EXP'
+require(MASS)
+z=lda(formula=EXP~.,data=y, prior=c(P[1],1-P[1]))
+w=predict(object=z,newdata=data.frame(x.scaled))
+a=w$class
+n=n-1
+for(i in 1:n){
+r=z$scaling
+k=rownames(r)[abs(r)==max(abs(r))]
+x=x[,colnames(x)!=k]
+x=x[a==1,]
+x.scaled=scale(x[,-1])
+y=cbind(x[,1],x.scaled)
+y=data.frame(y)
+colnames(y)[1]='EXP'
+z=qda(formula=EXP~.,data=y, prior=c(P[i+1],1-P[i+1]))
+w=predict(object=z,newdata=data.frame(x.scaled))
+a=w$class
+}
+b=as.numeric(a)-1
+sum(b)
+r=(x$EXP==b & b==1)
+q=as.numeric(r)
+sum(q)
+100*sum(q)/sum(b)
+sum(b)*15000000/10000
+(sum(q)/sum(b))*(sum(b)*15000000/10000)
+
+
+
+
+### The lowest quantiles of the predictive variable
+-----------------------------------------------------------
+n=3
+P=(1:n)/n
+x=read.csv('MOD_EXP.csv')
+for(i in 1:ncol(x))
+x[,i]=as.numeric(x[,i])
+colnames(x)[1]="EXP"
+x.scaled=scale(x[,-1])
+y=cbind(x[,1],x.scaled)
+y=data.frame(y)
+colnames(y)[1]='EXP'
+require(MASS)
+z=qda(formula=EXP~.,data=y, prior=c(P[1],1-P[1]))
+w=predict(object=z,newdata=data.frame(x.scaled))
+a=w$class
+n=n-1
+for(i in 1:n){
+r=z$scaling
+k=rownames(r)[abs(r)==min(abs(r))]
+x=x[,colnames(x)!=o]
+x=x[a==1,]
+x.scaled=scale(x[,-1])
+y=cbind(x[,1],x.scaled)
+y=data.frame(y)
+colnames(y)[1]='EXP'
+z=qda(formula=EXP~.,data=y, prior=c(P[i+1],1-P[i+1]))
+w=predict(object=z,newdata=data.frame(x.scaled))
+a=w$class
+}
+b=as.numeric(a)-1
+sum(b)
+r=(x$EXP==b & b==1)
+q=as.numeric(r)
+sum(q)
+100*sum(q)/sum(b)
+sum(b)*15000000/10000
+(sum(q)/sum(b))*(sum(b)*15000000/10000)
