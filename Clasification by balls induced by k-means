@@ -1,0 +1,22 @@
+o=c()
+ 
+ for(i in 1:nrow(datos)){
+ if(result$cluster[i]==1)
+ {o=rbind(o,datos[i,])}
+ }
+
+ o=o-result$centers[1,]
+ r=o*o
+ r=sum(r)
+ r=sqrt(r)
+ c=result$centers[1,-1]
+
+x=read.csv('MOD_EXP.csv')
+x=x[,-1]
+x=scale(x)
+
+ y=c()
+ for(i in 1:nrow(x)){
+ if(sqrt(sum((x[i,]-c)^2))<=r)
+ {y=rbind(y,x[i,])}
+}
