@@ -1,0 +1,57 @@
+##ILDA THE WIDOWMAKER
+------------------------------------
+n=5
+P=(1:n)/n
+require(MASS)
+
+
+x=read.csv('MOD_EXP.csv')
+for(i in 1:ncol(x))
+x[,i]=as.numeric(x[,i])
+colnames(x)[1]="EXP"
+M=0
+x.scaled=scale(x[,-1])
+y=cbind(x[,1],x.scaled)
+y=data.frame(y)
+y1=as.matrix(x.scaled)
+M=det(t(y1)%*%y1)
+colnames(y)[1]='EXP'
+
+while(M==0){
+x.scaled=scale(x[,-1])
+y=cbind(x[,1],x.scaled)
+y=data.frame(y)
+y1=as.matrix(x.scaled)
+M=det(t(y1)%*%y1)
+colnames(y)[1]='EXP'
+ANOVA=aov(x[,1]~.,data=y)
+}
+
+
+z=lda(formula=EXP~.,data=y, prior=c(P[1],1-P[1]))
+w=predict(object=z,newdata=data.frame(x.scaled))
+a=w$class
+
+
+
+n=n-1
+
+for(i in 1:n){
+x=x[a==1,]
+x.scaled=scale(x[,-1])
+y=cbind(x[,1],x.scaled)
+y=data.frame(y)
+colnames(y)[1]='EXP'
+z=lda(formula=EXP~.,data=y, prior=c(P[i+1],1-P[i+1]))
+w=predict(object=z,newdata=data.frame(x.scaled))
+a=w$class
+  }
+  
+ b=as.numeric(a)-1
+sum(b)
+r=(x$EXP==b & b==1)
+q=as.numeric(r)
+sum(q) 
+100*sum(q)/sum(b)
+sum(b)*15000000/10000
+(sum(q)/sum(b))*(sum(b)*15000000/10000)
