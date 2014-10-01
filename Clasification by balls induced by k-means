@@ -7,8 +7,9 @@ o=c()
 
  o=o-result$centers[1,]
  r=o*o
- r=sum(r)
+ r=rowSums(r)
  r=sqrt(r)
+ r=max(r)
  c=result$centers[1,-1]
 
 x=read.csv('MOD_EXP.csv')
