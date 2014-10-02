@@ -85,7 +85,7 @@ set.seed(S[k+1])
 
 if(G[j]!=0){
 for(m in 1:G[j]){
-datos=datos[result$cluster[F[w,]],]
+datos=datos[result$cluster[F[w,]]==FALSE,]
 w=w+1
 x.scaled=scale(datos[,-1])
 y=cbind(datos[,1],x.scaled)
@@ -106,7 +106,7 @@ x=table(result$cluster,datos[,1])
 
 
 
-datos=datos[result$cluster[H[w,]],]
+datos=datos[result$cluster[H[w,]]==FALSE,]
 x.scaled=scale(datos[,-1])
 y=cbind(datos[,1],x.scaled)
 datos=data.frame(y)
@@ -124,7 +124,7 @@ result<-kmeans(datos2,centersfinal$centers)
 
 if(G[k+1]!=0){
 for(m in 1:G[j]){
-datos=datos[result$cluster[F[w,]],]
+datos=datos[result$cluster[F[w,]]==FALSE,]
 w=w+1
 x.scaled=scale(datos[,-1])
 y=cbind(datos[,1],x.scaled)
