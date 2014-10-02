@@ -1,0 +1,167 @@
+
+
+
+
+
+a=10
+
+
+kmeanscluster <- function(x,numclusters) 
+                {
+                cl <- kmeans(x,numclusters,iter.max = 100, nstart = numclusters)
+                return(cl$centers)
+                }
+kmeansclusterbucle<-function(base,tammuestra,numclusters,numinteraciones)
+                {
+                for (i in 1:numinteraciones)
+                               {
+                               ### hace la muestra
+                               sampledatos<-datos2[sample(1:dim(base)[1],tammuestra),]
+                               cl<-kmeanscluster(sampledatos, numclusters)          
+                               if (i>1)
+                                              {
+                                                               result<-rbind(result,cl)
+                
+                                               }
+                               else
+                                               {
+                                                               result<-cl
+                                               }                                             
+                               }
+                return(result)
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+b=c()
+
+k=10
+
+F=c()
+G=c()
+H=c()
+
+ptm <- proc.time()
+
+
+S=sample(1:1000,k)
+
+
+set.seed(S[1])
+
+datos=read.csv('MOD_EXP.csv')
+for(i in 1:ncol(datos))
+datos[,i]=as.numeric(datos[,i])
+
+x.scaled=scale(datos[,-1])
+y=cbind(datos[,1],x.scaled)
+datos=data.frame(y)
+colnames(datos)[1]='EXP'
+auxdatos=datos[,-c(2,5,6,19)]
+#datos2<-datos[apply(auxdatos<t(matrix(apply(auxdatos,2,quantile,probs=.99),nrow = 17, ncol=dim(datos)[1])),1,sum)==dim(auxdatos)[2],]
+
+
+datos2=auxdatos
+centers<-kmeansclusterbucle(datos2,2000,a,100)
+centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
+
+result<-kmeans(datos2,centersfinal$centers)
+x=table(result$cluster,datos[,1])
+
+
+
+
+k=k-1
+
+for(j in 1:k){
+set.seed(S[k+1])
+
+h=0
+while(min(x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1]))==0){
+F=rbind(F,x[,2]==0)
+datos=datos[x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])!=0,]
+x.scaled=scale(datos[,-1])
+y=cbind(datos[,1],x.scaled)
+datos=data.frame(y)
+colnames(datos)[1]='EXP'
+auxdatos=datos
+datos2=auxdatos
+centers<-kmeansclusterbucle(datos2,2000,a,100)
+centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
+
+result<-kmeans(datos2,centersfinal$centers)
+x=table(result$cluster,datos[,1])
+h=h+1
+}
+
+G=c(G,h)
+
+
+
+
+
+H=rbind(H,x[,2]/(x[,1]+x[,2])==min(x[,2]/(x[,1]+x[,2])))
+datos=datos[x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])>min(x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])),]
+#datos=datos[x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])>0.005,]
+x.scaled=scale(datos[,-1])
+y=cbind(datos[,1],x.scaled)
+datos=data.frame(y)
+colnames(datos)[1]='EXP'
+auxdatos=datos
+datos2=auxdatos
+centers<-kmeansclusterbucle(datos2,2000,a,100)
+centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
+
+result<-kmeans(datos2,centersfinal$centers)
+
+}
+
+
+
+h=0
+while(min(x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1]))==0){
+
+datos=datos[x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])!=0,]
+x.scaled=scale(datos[,-1])
+y=cbind(datos[,1],x.scaled)
+datos=data.frame(y)
+colnames(datos)[1]='EXP'
+auxdatos=datos
+datos2=auxdatos
+centers<-kmeansclusterbucle(datos2,2000,a,100)
+centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
+
+result<-kmeans(datos2,centersfinal$centers)
+x=table(result$cluster,datos[,1])
+h=h+1
+}
+G=c(G,h)
+
+
+
+
+proc.time() - ptm
+d=proc.time() - ptm
+
+b=rbind(b,c(d[3]/60,sum(x),sum(x[,2]),sum(x[,2])/sum(x)))
+
+F
+G
+H
+S
+
+
+
+
+
