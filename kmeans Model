@@ -49,8 +49,15 @@ b=c()
 k=10
 
 F=c()
+FK=array(list(),1)
 G=c()
 H=c()
+HK=array(list(),1)
+Eini=0
+E0=c()
+Emin=c()
+u=1
+
 
 ptm <- proc.time()
 
@@ -69,16 +76,12 @@ y=cbind(datos[,1],x.scaled)
 datos=data.frame(y)
 colnames(datos)[1]='EXP'
 auxdatos=datos[,-c(2,5,6,19)]
-#datos2<-datos[apply(auxdatos<t(matrix(apply(auxdatos,2,quantile,probs=.99),nrow = 17, ncol=dim(datos)[1])),1,sum)==dim(auxdatos)[2],]
-
-
 datos2=auxdatos
 centers<-kmeansclusterbucle(datos2,2000,a,100)
 centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
-
 result<-kmeans(datos2,centersfinal$centers)
 x=table(result$cluster,datos[,1])
-
+Ini=result
 
 
 
@@ -86,7 +89,6 @@ k=k-1
 
 for(j in 1:k){
 set.seed(S[k+1])
-
 h=0
 while(min(x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1]))==0){
 F=rbind(F,x[,2]==0)
@@ -99,9 +101,10 @@ auxdatos=datos
 datos2=auxdatos
 centers<-kmeansclusterbucle(datos2,2000,a,100)
 centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
-
 result<-kmeans(datos2,centersfinal$centers)
 x=table(result$cluster,datos[,1])
+FK[[u]]=result
+u=u+1
 h=h+1
 }
 
@@ -113,7 +116,6 @@ G=c(G,h)
 
 H=rbind(H,x[,2]/(x[,1]+x[,2])==min(x[,2]/(x[,1]+x[,2])))
 datos=datos[x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])>min(x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])),]
-#datos=datos[x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])>0.005,]
 x.scaled=scale(datos[,-1])
 y=cbind(datos[,1],x.scaled)
 datos=data.frame(y)
@@ -122,16 +124,14 @@ auxdatos=datos
 datos2=auxdatos
 centers<-kmeansclusterbucle(datos2,2000,a,100)
 centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
-
 result<-kmeans(datos2,centersfinal$centers)
-
+HK[[j+1]]=result
 }
 
 
 
 h=0
 while(min(x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1]))==0){
-
 datos=datos[x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])!=0,]
 x.scaled=scale(datos[,-1])
 y=cbind(datos[,1],x.scaled)
@@ -144,10 +144,11 @@ centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
 
 result<-kmeans(datos2,centersfinal$centers)
 x=table(result$cluster,datos[,1])
+FK[[u]]=result
+u=u+1
 h=h+1
 }
 G=c(G,h)
-
 
 
 
