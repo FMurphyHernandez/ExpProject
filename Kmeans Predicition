@@ -1,51 +1,5 @@
 
-
-a=10
-
-
-kmeanscluster <- function(x,numclusters) 
-                {
-                cl <- kmeans(x,numclusters,iter.max = 100, nstart = numclusters)
-                return(cl$centers)
-                }
-kmeansclusterbucle<-function(base,tammuestra,numclusters,numinteraciones)
-                {
-                for (i in 1:numinteraciones)
-                               {
-                               ### hace la muestra
-                               sampledatos<-datos2[sample(1:dim(base)[1],tammuestra),]
-                               cl<-kmeanscluster(sampledatos, numclusters)          
-                               if (i>1)
-                                              {
-                                                               result<-rbind(result,cl)
-                
-                                               }
-                               else
-                                               {
-                                                               result<-cl
-                                               }                                             
-                               }
-                return(result)
-                }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-b=c()
-
 k=10
-
-
 
 ptm <- proc.time()
 
@@ -63,16 +17,8 @@ x.scaled=scale(datos[,-1])
 y=cbind(datos[,1],x.scaled)
 datos=data.frame(y)
 colnames(datos)[1]='EXP'
-auxdatos=datos[,-c(2,5,6,19)]
-#datos2<-datos[apply(auxdatos<t(matrix(apply(auxdatos,2,quantile,probs=.99),nrow = 17, ncol=dim(datos)[1])),1,sum)==dim(auxdatos)[2],]
-
-
-datos2=auxdatos
-centers<-kmeansclusterbucle(datos2,2000,a,100)
-centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
-
-result<-kmeans(datos2,centersfinal$centers)
-x=table(result$cluster,datos[,1])
+datos[,1]=Eini
+P1=predict.kmeans(Ini,datos)
 
 
 
