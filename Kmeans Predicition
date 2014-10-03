@@ -1,5 +1,6 @@
 
 k=10
+library(DeducerExtras)
 
 ptm <- proc.time()
 
@@ -18,8 +19,11 @@ y=cbind(datos[,1],x.scaled)
 datos=data.frame(y)
 colnames(datos)[1]='EXP'
 datos[,1]=Eini
-P1=predict.kmeans(Ini,datos)
-
+Pred=predict.kmeans(Ini,datos)
+ETA=which(F[1,]==FALSE)
+EPS=(Pred %in% Eta)
+EPS=which(EPS==TRUE)
+datos=datos[EPS,]
 
 
 
@@ -31,59 +35,61 @@ set.seed(S[k+1])
 
 if(G[j]!=0){
 for(m in 1:G[j]){
-datos=datos[result$cluster[!F[w,]],]
-w=w+1
+ETA=which(F[w,]==FALSE)
+EPS=(Pred %in% Eta)
+EPS=which(EPS==TRUE)
+datos=datos[EPS,]
 x.scaled=scale(datos[,-1])
 y=cbind(datos[,1],x.scaled)
 datos=data.frame(y)
 colnames(datos)[1]='EXP'
-auxdatos=datos
-datos2=auxdatos
-centers<-kmeansclusterbucle(datos2,2000,a,100)
-centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
-result<-kmeans(datos2,centersfinal$centers)
-x=table(result$cluster,datos[,1])
-}
+datos[,1]=E0[w]
+Pred=predict.kmeans(FK[w],datos)
 }
 
 
 
-
-
-
-
-datos=datos[result$cluster[!H[w,]],]
+ETA=which(H[m,]==FALSE)
+EPS=(Pred %in% Eta)
+EPS=which(EPS==TRUE)
+datos=datos[EPS,]
 x.scaled=scale(datos[,-1])
 y=cbind(datos[,1],x.scaled)
 datos=data.frame(y)
 colnames(datos)[1]='EXP'
-auxdatos=datos
-datos2=auxdatos
-centers<-kmeansclusterbucle(datos2,2000,a,100)
-centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
-result<-kmeans(datos2,centersfinal$centers)
-
+datos[,1]=Emin[m]
+Pred=predict.kmeans(HK[m],datos)
 }
+
+
+ETA=which(H[m,]==FALSE)
+EPS=(Pred %in% Eta)
+EPS=which(EPS==TRUE)
+datos=datos[EPS,]
+x.scaled=scale(datos[,-1])
+y=cbind(datos[,1],x.scaled)
+datos=data.frame(y)
+colnames(datos)[1]='EXP'
+datos[,1]=Emin[m]
+
 
 
 
 
 if(G[k+1]!=0){
 for(m in 1:G[j]){
-datos=datos[result$cluster[!F[w,]],]
-w=w+1
+ETA=which(F[w,]==FALSE)
+EPS=(Pred %in% Eta)
+EPS=which(EPS==TRUE)
+datos=datos[EPS,]
 x.scaled=scale(datos[,-1])
 y=cbind(datos[,1],x.scaled)
 datos=data.frame(y)
 colnames(datos)[1]='EXP'
-auxdatos=datos
-datos2=auxdatos
-centers<-kmeansclusterbucle(datos2,2000,a,100)
-centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
-
-result<-kmeans(datos2,centersfinal$centers)
-x=table(result$cluster,datos[,1])
-
+datos[,1]=E0[w]
+if(m==G[j])
+{break}
+Pred=predict.kmeans(FK[w],datos)
 }
 }
 
