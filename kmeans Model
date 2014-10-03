@@ -121,7 +121,7 @@ datos2=auxdatos
 centers<-kmeansclusterbucle(datos2,2000,a,100)
 centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
 result<-kmeans(datos2,centersfinal$centers)
-HK[[j+1]]=result
+HK[[j]]=result
 Emin=cbind(Emin,mean(result$centers[,1]))
 }
 
