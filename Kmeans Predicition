@@ -21,7 +21,7 @@ colnames(datos)[1]='EXP'
 datos[,1]=Eini
 Pred=predict.kmeans(Ini,datos)
 ETA=which(F[1,]==FALSE)
-EPS=(Pred %in% Eta)
+EPS=(Pred %in% ETA)
 EPS=which(EPS==TRUE)
 datos=datos[EPS,]
 
@@ -30,66 +30,62 @@ datos=datos[EPS,]
 k=k-1
 w=1
 for(j in 1:k){
-set.seed(S[k+1])
+  set.seed(S[j+1])
 
 
-if(G[j]!=0){
-for(m in 1:G[j]){
-ETA=which(F[w,]==FALSE)
-EPS=(Pred %in% Eta)
-EPS=which(EPS==TRUE)
-datos=datos[EPS,]
-x.scaled=scale(datos[,-1])
-y=cbind(datos[,1],x.scaled)
-datos=data.frame(y)
-colnames(datos)[1]='EXP'
-datos[,1]=E0[w]
-Pred=predict.kmeans(FK[w],datos)
+  if(G[j]!=0){
+    for(m in 1:G[j]){
+      ETA=which(F[w,]==FALSE)
+      EPS=(Pred %in% ETA)
+      EPS=which(EPS==TRUE)
+      datos=datos[EPS,]
+      x.scaled=scale(datos[,-1])
+      y=cbind(datos[,1],x.scaled)
+      datos=data.frame(y)
+      colnames(datos)[1]='EXP'
+      datos[,1]=E0[w]
+      Pred=predict.kmeans(FK[[w]],datos)
+      w=w+1
+    }
+  }
+
+
+  ETA=which(H[j,]==FALSE)
+  EPS=(Pred %in% ETA)
+  EPS=which(EPS==TRUE)
+  datos=datos[EPS,]
+  x.scaled=scale(datos[,-1])
+  y=cbind(datos[,1],x.scaled)
+  datos=data.frame(y)
+  colnames(datos)[1]='EXP'
+  datos[,1]=Emin[j]
+  Pred=predict.kmeans(HK[[j]],datos)
 }
 
 
-
-ETA=which(H[m,]==FALSE)
+ETA=which(H[j,]==FALSE)
 EPS=(Pred %in% Eta)
 EPS=which(EPS==TRUE)
 datos=datos[EPS,]
-x.scaled=scale(datos[,-1])
-y=cbind(datos[,1],x.scaled)
-datos=data.frame(y)
-colnames(datos)[1]='EXP'
-datos[,1]=Emin[m]
-Pred=predict.kmeans(HK[m],datos)
-}
 
-
-ETA=which(H[m,]==FALSE)
-EPS=(Pred %in% Eta)
-EPS=which(EPS==TRUE)
-datos=datos[EPS,]
-x.scaled=scale(datos[,-1])
-y=cbind(datos[,1],x.scaled)
-datos=data.frame(y)
-colnames(datos)[1]='EXP'
-datos[,1]=Emin[m]
 
 
 
 
 
 if(G[k+1]!=0){
-for(m in 1:G[j]){
-ETA=which(F[w,]==FALSE)
-EPS=(Pred %in% Eta)
-EPS=which(EPS==TRUE)
-datos=datos[EPS,]
-x.scaled=scale(datos[,-1])
-y=cbind(datos[,1],x.scaled)
-datos=data.frame(y)
-colnames(datos)[1]='EXP'
-datos[,1]=E0[w]
-if(m==G[j])
-{break}
-Pred=predict.kmeans(FK[w],datos)
+  for(m in 1:G[j]){
+    Pred=predict.kmeans(FK[[w]],datos)
+    ETA=which(F[w,]==FALSE)
+    EPS=(Pred %in% Eta)
+    EPS=which(EPS==TRUE)
+    datos=datos[EPS,]
+    x.scaled=scale(datos[,-1])
+    y=cbind(datos[,1],x.scaled)
+    datos=data.frame(y)
+    colnames(datos)[1]='EXP'
+    datos[,1]=E0[w]
+    w=w+1
 }
 }
 
