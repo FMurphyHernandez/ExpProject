@@ -83,7 +83,7 @@ Eini=mean(result$centers[,1])
 k=k-1
 
 for(j in 1:k){
-set.seed(S[k+1])
+set.seed(S[j+1])
 h=0
 while(min(x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1]))==0){
 F=rbind(F,x[,2]==0)
