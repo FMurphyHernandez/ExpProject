@@ -28,11 +28,31 @@ for(i in 1:n){
   w1=predict(object=z1,newdata=data.frame(x1.scaled))
   a1=w1$class
 }
-b=as.numeric(a)-1
-sum(b)
-r=(x$EXP==b & b==1)
-q=as.numeric(r)
-sum(q)
-100*sum(q)/sum(b)
-sum(b)*15000000/10000
-(sum(q)/sum(b))*(sum(b)*15000000/10000)
+
+
+LDA2=array(list(),1)
+
+x2=datos[result$cluster==2,]
+for(i in 1:ncol(x2))
+x2[,i]=as.numeric(x2[,i])
+colnames(x2)[1]="EXP"
+x2.scaled=scale(x2[,-1])
+y2=cbind(x2[,1],x2.scaled)
+y2=data.frame(y2)
+colnames(y2)[1]='EXP'
+z2=lda(formula=EXP~.,data=y2, prior=c(P[1],1-P[1]))
+LDA2[[1]]=z2
+w2=predict(object=z1,newdata=data.frame(x1.scaled))
+a2=w2$class
+n=n-1
+for(i in 1:n){
+  x2=x2[a2==1,]
+  x2.scaled=scale(x2[,-1])
+  y2=cbind(x2[,1],x2.scaled)
+  y2=data.frame(y2)
+  colnames(y2)[1]='EXP'
+  z1=lda(formula=EXP~.,data=y2, prior=c(P[i+1],1-P[i+1]))
+  LDA2[[i+1]]=z2
+  w2=predict(object=z2,newdata=data.frame(x2.scaled))
+  a2=w2$class
+}
