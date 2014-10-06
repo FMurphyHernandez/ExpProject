@@ -93,7 +93,7 @@ y=cbind(datos[,1],x.scaled)
 datos=data.frame(y)
 colnames(datos)[1]='EXP'
 auxdatos=datos
-datos2=auxdatos
+datos2=auxdatos[,-c(2,5,6,19)]
 centers<-kmeansclusterbucle(datos2,2000,a,100)
 centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
 result<-kmeans(datos2,centersfinal$centers)
@@ -117,7 +117,7 @@ y=cbind(datos[,1],x.scaled)
 datos=data.frame(y)
 colnames(datos)[1]='EXP'
 auxdatos=datos
-datos2=auxdatos
+datos2=auxdatos[,-c(2,5,6,19)]
 centers<-kmeansclusterbucle(datos2,2000,a,100)
 centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
 result<-kmeans(datos2,centersfinal$centers)
@@ -134,7 +134,7 @@ x.scaled=scale(datos[,-1])
 y=cbind(datos[,1],x.scaled)
 datos=data.frame(y)
 colnames(datos)[1]='EXP'
-auxdatos=datos
+auxdatos=datos[,-c(2,5,6,19)]
 datos2=auxdatos
 centers<-kmeansclusterbucle(datos2,2000,a,100)
 centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
