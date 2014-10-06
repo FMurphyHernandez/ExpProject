@@ -77,7 +77,7 @@ if(G[k+1]!=0){
   for(m in 1:G[j]){
     Pred=predict.kmeans(FK[[w]],datos)
     ETA=which(F[w,]==FALSE)
-    EPS=(Pred %in% Eta)
+    EPS=(Pred %in% ETA)
     EPS=which(EPS==TRUE)
     datos=datos[EPS,]
     x.scaled=scale(datos[,-1])
