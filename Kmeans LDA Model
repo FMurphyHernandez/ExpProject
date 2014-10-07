@@ -4,6 +4,11 @@ P=.5
 n=10
 
 LDA=array(list(),1)
+A=matrix(0,10)
+B=matrix(0,10)
+C=matrix(0,10)
+D=matrix(0,10)
+E=matrix(0,10)
 
 ##for(j in 1:ncol(x1))
 ##x[,j]=as.numeric(x[,j])
@@ -20,6 +25,19 @@ for(i in 1:n){
   colnames(y)[1]='EXP'
   LDA[[i]]=lda(formula=EXP~.,data=y, prior=c(P,1-P))
   print(class(LDA[[i]]))
+  w=predict(object=LDA[[i]],newdata=data.frame(x.scaled))
+a=w$class
+ b=as.numeric(a)-1
+A[i]=sum(b)
+r=(x$EXP==b & b==1)
+q=as.numeric(r)
+B[i]=sum(q)
+C[i]=100*sum(q)/sum(b)
+D[i]=sum(b)*4265446/20000
+E[i]=(sum(q)/sum(b))*(sum(b)*4265446/20000)
+
+  
+  
 }
 length(LDA)
 for(i in 1:n)
