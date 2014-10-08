@@ -64,7 +64,7 @@ for(j in 1:k){
 
 
 ETA=which(H[j,]==FALSE)
-EPS=(Pred %in% Eta)
+EPS=(Pred %in% ETA)
 EPS=which(EPS==TRUE)
 datos=datos[EPS,]
 
