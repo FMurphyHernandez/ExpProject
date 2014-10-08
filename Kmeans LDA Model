@@ -1,6 +1,6 @@
 require(MASS)
 
-P=.5
+P=.97
 n=10
 
 LDA=array(list(),1)
@@ -23,7 +23,8 @@ for(i in 1:n){
   y=cbind(x[,1],x.scaled)
   y=data.frame(y)
   colnames(y)[1]='EXP'
-  LDA[[i]]=lda(formula=EXP~.,data=y, prior=c(P,1-P))
+  #LDA[[i]]=lda(formula=EXP~.,data=y, prior=c(P,1-P))
+  LDA[[i]]=lda(formula=EXP~.,data=y)
   print(class(LDA[[i]]))
   w=predict(object=LDA[[i]],newdata=data.frame(x.scaled))
 a=w$class
@@ -43,3 +44,5 @@ length(LDA)
 for(i in 1:n)
 print(class(LDA[[i]]))
 cbind(A,B,C,D,E)
+colSums(cbind(A,B,D,E))
+sum(B)*100/sum(A)
