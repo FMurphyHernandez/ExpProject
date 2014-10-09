@@ -1,0 +1,15 @@
+
+datos=datos[,-c(28,29,30)]
+data=datos
+Final=c()
+
+
+for(i in 1:10){
+  data=datos
+  data=data[Pred==i,]
+  data=data[,DD[i,]]
+  x.scaled=scale(data[,-1])
+  w=predict(object=LDA[[i]],newdata=data.frame(x.scaled))
+  MM=cbind(rownames(data),w$class)
+  Final=rbind(Final,MM)
+  }
