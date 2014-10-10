@@ -1,0 +1,454 @@
+a=10
+kmeanscluster <- function(x,numclusters)
+{
+cl <- kmeans(x,numclusters,iter.max = 100, nstart = numclusters)
+return(cl$centers)
+}
+kmeansclusterbucle<-function(base,tammuestra,numclusters,numinteraciones)
+{
+for (i in 1:numinteraciones)
+{
+### hace la muestra
+sampledatos<-datos2[sample(1:dim(base)[1],tammuestra),]
+cl<-kmeanscluster(sampledatos, numclusters)
+if (i>1)
+{
+result<-rbind(result,cl)
+}
+else
+{
+result<-cl
+}
+}
+return(result)
+}
+
+
+
+set.seed(1987)
+
+b=c()
+k=10
+F=c()
+FK=array(list(),1)
+G=c()
+H=c()
+HK=array(list(),1)
+Eini=0
+E0=c()
+Emin=c()
+u=1
+ptm <- proc.time()
+S=sample(1:1000,k)
+set.seed(S[1])
+datos=read.csv('MOD_EXP.csv')
+for(j in 1:ncol(datos))
+datos[,j]=as.numeric(datos[,j])
+datos=datos[,c(34,1:33)]
+datos[12482,30]=0
+datos=cbind(datos,rowSums(datos[,22:24]))
+datos=datos[,-(22:24)]
+datos=data.frame(datos)
+colnames(datos)[32]='QUEJAS'
+
+
+
+#datos=datos[,-2]
+#datos=datos[20002:40001,]
+ #datos$QUEJAS_3=rgeom(40000,.01)
+ #datos$QUEJAS_2=rgeom(40000,.01)
+ #datos$QUEJAS_1=rgeom(40000,.01)
+
+
+
+x.scaled=scale(datos[,-1])
+y=cbind(datos[,1],x.scaled)
+datos=data.frame(y)
+colnames(datos)[1]='EXP'
+auxdatos=datos[,-c(2,28,29,30,32)]
+datos2=auxdatos
+centers<-kmeansclusterbucle(datos2,2000,a,100)
+centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
+result<-kmeans(datos2,centersfinal$centers)
+x=table(result$cluster,datos[,1])
+Ini=result
+Eini=mean(result$centers[,1])
+k=k-1
+
+
+
+
+
+
+for(j in 1:k){
+
+
+
+set.seed(S[j+1])
+h=0
+
+
+
+while(min(x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1]))==0){
+F=rbind(F,x[,2]==0)
+datos=datos[x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])!=0,]
+x.scaled=scale(datos[,-1])
+y=cbind(datos[,1],x.scaled)
+datos=data.frame(y)
+colnames(datos)[1]='EXP'
+auxdatos=datos[,-c(2,28,29,30,32)]
+datos2=auxdatos
+centers<-kmeansclusterbucle(datos2,2000,a,100)
+centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
+result<-kmeans(datos2,centersfinal$centers)
+x=table(result$cluster,datos[,1])
+FK[[u]]=result
+E0=cbind(E0,mean(result$centers[,1]))
+u=u+1
+h=h+1
+}
+
+
+
+
+
+
+
+G=c(G,h)
+H=rbind(H,x[,2]/(x[,1]+x[,2])==min(x[,2]/(x[,1]+x[,2])))
+datos=datos[x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])>min(x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])),]
+x.scaled=scale(datos[,-1])
+y=cbind(datos[,1],x.scaled)
+datos=data.frame(y)
+colnames(datos)[1]='EXP'
+auxdatos=datos[,-c(2,28,29,30,32)]
+datos2=auxdatos
+centers<-kmeansclusterbucle(datos2,2000,a,100)
+centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
+result<-kmeans(datos2,centersfinal$centers)
+HK[[j]]=result
+x=table(result$cluster,datos[,1])
+Emin=cbind(Emin,mean(result$centers[,1]))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+h=0
+while(min(x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1]))==0){
+datos=datos[x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])!=0,]
+x.scaled=scale(datos[,-1])
+y=cbind(datos[,1],x.scaled)
+datos=data.frame(y)
+colnames(datos)[1]='EXP'
+auxdatos=datos[,-c(2,28,29,30,32)]
+datos2=auxdatos
+centers<-kmeansclusterbucle(datos2,2000,a,100)
+centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
+result<-kmeans(datos2,centersfinal$centers)
+x=table(result$cluster,datos[,1])
+FK[[u]]=result
+E0=cbind(E0,mean(result$centers[,1]))
+u=u+1
+h=h+1
+}
+
+
+
+
+
+
+G=c(G,h)
+proc.time() - ptm
+d=proc.time() - ptm
+b=rbind(b,c(d[3]/60,sum(x),sum(x[,2]),sum(x[,2])/sum(x)))
+F
+G
+H
+S
+sum(x)
+colSums(x)
+sum(x[,2])/sum(x)
+nrow(datos)
+
+
+
+require(MASS)
+
+
+datos=datos[,-c(28,29,30)]
+
+
+
+
+P=.5
+n=10
+LDA=array(list(),1)
+DD=c()
+A=matrix(0,10)
+B=matrix(0,10)
+C=matrix(0,10)
+D=matrix(0,10)
+E=matrix(0,10)
+for(i in 1:n){
+x=datos[result$cluster==i,]
+d=apply(x,2,sd)
+d=(d!=0)
+length(d)
+DD=rbind(DD,d)
+x=x[,d]
+x.scaled=scale(x[,-1])
+y=cbind(x[,1],x.scaled)
+y=data.frame(y)
+colnames(y)[1]='EXP'
+#LDA[[i]]=lda(formula=EXP~.,data=y, prior=c(P,1-P))
+LDA[[i]]=lda(formula=EXP~.,data=y)
+print(class(LDA[[i]]))
+w=predict(object=LDA[[i]],newdata=data.frame(x.scaled))
+a=w$class
+b=as.numeric(a)-1
+A[i]=sum(b)
+r=(x$EXP==b & b==1)
+q=as.numeric(r)
+B[i]=sum(q)
+C[i]=100*sum(q)/sum(b)
+D[i]=sum(b)*4265446/20000
+E[i]=(sum(q)/sum(b))*(sum(b)*4265446/20000)
+}
+length(LDA)
+for(i in 1:n)
+print(class(LDA[[i]]))
+cbind(A,B,C,D,E)
+colSums(cbind(A,B,D,E))
+sum(B)*100/sum(A)
+
+
+
+
+
+k=10
+library(DeducerExtras)
+ptm <- proc.time()
+set.seed(S[1])
+
+
+library(RODBC)
+chanel <- odbcConnect("Ral98")
+cadsql<-c('')
+cadsql<- paste('SELECT', 
+	  '[EXPORTADO]',
+      ',[dn]',
+      ',isnull([MESES_ANTIGUEDAD],0) as [MESES_ANTIGUEDAD] ',
+      ',isnull([ARPM_1],0) as [ARPM_1]',
+      ',isnull([ARPM_2],0) as [ARPM_2]',
+      ',isnull([ARPM_3],0) as [ARPM_3]',
+      ',isnull([ARPU_VOICE_1],0) as [ARPU_VOICE_1]',
+      ',isnull([ARPU_VOICE_2],0) as [ARPU_VOICE_2]',
+      ',isnull([ARPU_VOICE_3],0) as [ARPU_VOICE_3]',
+      ',isnull([ARPU_SMS_1],0) as [ARPU_SMS_1]',
+      ',isnull([ARPU_SMS_2],0) as [ARPU_SMS_2]',
+      ',isnull([ARPU_SMS_3],0) as [ARPU_SMS_3]',
+      ',isnull([ARPU_DATA_1],0) as [ARPU_DATA_1]',
+      ',isnull([ARPU_DATA_2],0) as [ARPU_DATA_2]',
+      ',isnull([ARPU_DATA_3],0) as [ARPU_DATA_3]',
+      ',isnull([ARPU_OTHER_1],0) as [ARPU_OTHER_1]',
+      ',isnull([ARPU_OTHER_2],0) as [ARPU_OTHER_2]',
+      ',isnull([ARPU_OTHER_3],0) as [ARPU_OTHER_3]',
+      ',isnull([INGRESOS_SVA_1],0) as [INGRESOS_SVA_1]',
+      ',isnull([INGRESOS_SVA_2],0) as [INGRESOS_SVA_2]',
+      ',isnull([INGRESOS_SVA_3],0) as [INGRESOS_SVA_3]',
+      ',isnull([MTO_IVA_RECARGA_1],0) as [MTO_IVA_RECARGA_1]',
+      ',isnull([RECARGAS_1],0) as [RECARGAS_1]',
+      ',isnull([MTO_IVA_RECARGA_2],0) as [MTO_IVA_RECARGA_2]',
+      ',isnull([RECARGAS_2],0) as [RECARGAS_2]',
+      ',isnull([MTO_IVA_RECARGA_3],0) as [MTO_IVA_RECARGA_3]',
+      ',isnull([RECARGAS_3],0) as [RECARGAS_3]',
+      ',isnull([CVE_EQUIPO],0) as [CVE_EQUIPO]',
+      ',isnull([GAMA_ALTA_EQUIPO_PRIMERO],0) as [GAMA_ALTA_EQUIPO_PRIMERO]',
+      ',isnull([CVE_EQUIPO_ULTIMO],0) as [CVE_EQUIPO_ULTIMO]',
+      ',case when isnull([GAMA_ALTA_EQUIPO_ULTIMO],0)>0 then 1 else 0 end as [GAMA_ALTA_EQUIPO_ULTIMO]',
+	',isnull([QUEJAS_1],0)+isnull([QUEJAS_2],0)+isnull([QUEJAS_3],0) as [QUEJAS]',
+' FROM [dbo].[JIC_MODEXP2]',
+' where',
+	'cve_mes=201409',
+	'and id_num between 20001 and 40000',sep=' ')
+datos <- sqlQuery(chanel, cadsql)
+close(chanel)
+rownames(datos)=datos$dn
+
+
+
+
+
+
+#datos=read.csv('2020001_3020000.csv')
+#datos=datos[sample(1:nrow(datos),10000,FALSE),]
+#for(j in 1:ncol(datos))
+#datos[,j]=as.numeric(datos[,j])
+#datos=datos[,c(34,1:33)]
+#datos=cbind(datos,rowSums(datos[,22:24]))
+#datos=datos[,-(22:24)]
+#datos=data.frame(datos)
+#colnames(datos)[32]='QUEJAS'
+#rownames(datos)=1:10000
+
+
+
+
+
+
+
+for(i in 1:ncol(datos))
+datos[,i]=as.numeric(datos[,i])
+
+
+
+
+x.scaled=scale(datos[,-1])
+y=cbind(datos[,1],x.scaled)
+datos=data.frame(y)
+colnames(datos)[1]='EXP'
+datos[,1]=Eini
+Pred=predict.kmeans(Ini,datos)
+
+
+
+k=k-1
+w=1
+for(j in 1:k){
+	set.seed(S[j+1])
+	if(G[j]!=0){
+		for(m in 1:G[j]){
+				ETA=which(F[w,]==FALSE)
+				EPS=(Pred %in% ETA)
+				EPS=which(EPS==TRUE)
+				x.scaled=scale(datos[,-1])
+				y=cbind(datos[,1],x.scaled)
+				datos=data.frame(y)
+				colnames(datos)[1]='EXP'
+				datos[,1]=E0[w]
+				Pred=predict.kmeans(FK[[w]],datos)
+				w=w+1
+				}
+			}
+	ETA=which(H[j,]==FALSE)
+	EPS=(Pred %in% ETA)
+	EPS=which(EPS==TRUE)
+	datos=datos[EPS,]
+	x.scaled=scale(datos[,-1])
+	y=cbind(datos[,1],x.scaled)
+	atos=data.frame(y)
+	colnames(datos)[1]='EXP'
+	datos[,1]=Emin[j]
+	Pred=predict.kmeans(HK[[j]],datos)
+	}
+
+
+
+ETA=which(H[j,]==FALSE)
+EPS=(Pred %in% ETA)
+EPS=which(EPS==TRUE)
+datos=datos[EPS,]
+if(G[k+1]!=0){
+	for(m in 1:G[j]){
+			Pred=predict.kmeans(FK[[w]],datos)
+			ETA=which(F[w,]==FALSE)
+			EPS=(Pred %in% ETA)
+			EPS=which(EPS==TRUE)
+			datos=datos[EPS,]
+			x.scaled=scale(datos[,-1])
+			y=cbind(datos[,1],x.scaled)
+			datos=data.frame(y)
+			colnames(datos)[1]='EXP'
+			datos[,1]=E0[w]
+			w=w+1
+			}
+		}
+
+#Quitar los que sobran de la predicción
+Pred=Pred[EPS]
+
+proc.time() - ptm
+
+
+
+datos=datos[,-c(28,29,30)]
+data=datos
+Final=c()
+for(i in ETA){
+data=datos
+data=data[Pred==i,]
+data=data[,DD[i,]]
+x.scaled=scale(data[,-1])
+w=predict(object=LDA[[i]],newdata=data.frame(x.scaled))
+MM=cbind(rownames(data),w$class)
+Final=rbind(Final,MM)
+sum(as.numeric(Final[,2])-1)
+}
+sum(as.numeric(Final[,2])-1)
+k=10
+library(DeducerExtras)
+ptm <- proc.time()
+set.seed(S[1])
+library(RODBC)
+chanel <- odbcConnect("Ral98")
+cadsql<-c('')
+cadsql<- paste('SELECT',
+'[EXPORTADO]',
+',[dn]',
+',isnull([MESES_ANTIGUEDAD],0) as [MESES_ANTIGUEDAD] ',
+',isnull([ARPM_1],0) as [ARPM_1]',
+',isnull([ARPM_2],0) as [ARPM_2]',
+',isnull([ARPM_3],0) as [ARPM_3]',
+',isnull([ARPU_VOICE_1],0) as [ARPU_VOICE_1]',
+',isnull([ARPU_VOICE_2],0) as [ARPU_VOICE_2]',
+',isnull([ARPU_VOICE_3],0) as [ARPU_VOICE_3]',
+',isnull([ARPU_SMS_1],0) as [ARPU_SMS_1]',
+',isnull([ARPU_SMS_2],0) as [ARPU_SMS_2]',
+',isnull([ARPU_SMS_3],0) as [ARPU_SMS_3]',
+',isnull([ARPU_DATA_1],0) as [ARPU_DATA_1]',
+',isnull([ARPU_DATA_2],0) as [ARPU_DATA_2]',
+',isnull([ARPU_DATA_3],0) as [ARPU_DATA_3]',
+',isnull([ARPU_OTHER_1],0) as [ARPU_OTHER_1]',
+',isnull([ARPU_OTHER_2],0) as [ARPU_OTHER_2]',
+',isnull([ARPU_OTHER_3],0) as [ARPU_OTHER_3]',
+',isnull([INGRESOS_SVA_1],0) as [INGRESOS_SVA_1]',
+',isnull([INGRESOS_SVA_2],0) as [INGRESOS_SVA_2]',
+',isnull([INGRESOS_SVA_3],0) as [INGRESOS_SVA_3]',
+',isnull([MTO_IVA_RECARGA_1],0) as [MTO_IVA_RECARGA_1]',
+',isnull([RECARGAS_1],0) as [RECARGAS_1]',
+',isnull([MTO_IVA_RECARGA_2],0) as [MTO_IVA_RECARGA_2]',
+',isnull([RECARGAS_2],0) as [RECARGAS_2]',
+',isnull([MTO_IVA_RECARGA_3],0) as [MTO_IVA_RECARGA_3]',
+',isnull([RECARGAS_3],0) as [RECARGAS_3]',
+',isnull([CVE_EQUIPO],0) as [CVE_EQUIPO]',
+',isnull([GAMA_ALTA_EQUIPO_PRIMERO],0) as [GAMA_ALTA_EQUIPO_PRIMERO]',
+',isnull([CVE_EQUIPO_ULTIMO],0) as [CVE_EQUIPO_ULTIMO]',
+',case when isnull([GAMA_ALTA_EQUIPO_ULTIMO],0)>0 then 1 else 0 end as [GAMA_ALTA_EQUIPO_ULTIMO]',
+',isnull([QUEJAS_1],0)+isnull([QUEJAS_2],0)+isnull([QUEJAS_3],0) as [QUEJAS]',
+' FROM [dbo].[JIC_MODEXP2]',
+' where',
+'cve_mes=201409',
+'and id_num between 20001 and 40000',sep=' ')
+datos <- sqlQuery(chanel, cadsql)
+close(chanel)
+rownames(datos)=datos$dn
+for(i in 1:ncol(datos))
+datos[,i]=as.numeric(datos[,i])
+MIU=(rownames(datos) %in% Final[,1])
+GAMMA=datos[MIU,]
+GG=as.numeric(Final[,2])
+GG=GG-1
+NIU=(GG==1)
+GAMMA=GAMMA[NIU,]
+sum(GAMMA$EXPORTADO)
+
