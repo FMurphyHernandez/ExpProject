@@ -1,7 +1,7 @@
 a=10
 kmeanscluster <- function(x,numclusters)
 {
-cl <- kmeans(x,numclusters,iter.max = 100, nstart = numclusters)
+cl <- kmeans(x,numclusters,iter.max = 500, nstart = numclusters)
 return(cl$centers)
 }
 kmeansclusterbucle<-function(base,tammuestra,numclusters,numinteraciones)
@@ -25,7 +25,7 @@ return(result)
 
 
 
-set.seed(1987)
+set.seed(2020)
 
 b=c()
 k=10
