@@ -74,4 +74,8 @@ datos[,i]=as.numeric(datos[,i])
 
 MIU=(rownames(datos) %in% Final[,1])
 GAMMA=datos[MIU,]
+GG=as.numeric(GG)
+GG=GG-1
+NIU=(GG==1)
+GAMMA=GAMMA[NIU,]
 sum(GAMMA$EXPORTADO)
