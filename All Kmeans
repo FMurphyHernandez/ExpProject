@@ -67,8 +67,8 @@ datos=data.frame(y)
 colnames(datos)[1]='EXP'
 auxdatos=datos[,-c(2,28,29,30,32)]
 datos2=auxdatos
-centers<-kmeansclusterbucle(datos2,2000,a,100)
-centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
+centers<-kmeansclusterbucle(datos2,2000,a,500)
+centersfinal<-kmeans(centers,a,iter.max = 500, nstart = a)
 result<-kmeans(datos2,centersfinal$centers)
 x=table(result$cluster,datos[,1])
 Ini=result
@@ -98,8 +98,8 @@ datos=data.frame(y)
 colnames(datos)[1]='EXP'
 auxdatos=datos[,-c(2,28,29,30,32)]
 datos2=auxdatos
-centers<-kmeansclusterbucle(datos2,2000,a,100)
-centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
+centers<-kmeansclusterbucle(datos2,2000,a,500)
+centersfinal<-kmeans(centers,a,iter.max = 500, nstart = a)
 result<-kmeans(datos2,centersfinal$centers)
 x=table(result$cluster,datos[,1])
 FK[[u]]=result
@@ -123,8 +123,8 @@ datos=data.frame(y)
 colnames(datos)[1]='EXP'
 auxdatos=datos[,-c(2,28,29,30,32)]
 datos2=auxdatos
-centers<-kmeansclusterbucle(datos2,2000,a,100)
-centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
+centers<-kmeansclusterbucle(datos2,2000,a,500)
+centersfinal<-kmeans(centers,a,iter.max = 500, nstart = a)
 result<-kmeans(datos2,centersfinal$centers)
 HK[[j]]=result
 x=table(result$cluster,datos[,1])
@@ -152,8 +152,8 @@ datos=data.frame(y)
 colnames(datos)[1]='EXP'
 auxdatos=datos[,-c(2,28,29,30,32)]
 datos2=auxdatos
-centers<-kmeansclusterbucle(datos2,2000,a,100)
-centersfinal<-kmeans(centers,a,iter.max = 100, nstart = a)
+centers<-kmeansclusterbucle(datos2,2000,a,500)
+centersfinal<-kmeans(centers,a,iter.max = 500, nstart = a)
 result<-kmeans(datos2,centersfinal$centers)
 x=table(result$cluster,datos[,1])
 FK[[u]]=result
