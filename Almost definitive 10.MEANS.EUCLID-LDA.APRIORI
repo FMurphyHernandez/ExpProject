@@ -233,8 +233,8 @@ for(j in 1:k){
 			ETA=which(F[w,]==FALSE)
 			EPS=(Pred %in% ETA)
 			EPS=which(EPS==TRUE)
-			#datos=datos[EPS,]
-			datos[,1]=E0[w]
+			datos=datos[EPS,]
+			#datos[,1]=E0[w]
 			x.scaled=scale(datos[,-c(1,2,28,29,30,32)],center=M0[w,], scale=SD0[w,])
 			y<-cbind(datos[,1],x.scaled)
 			datos2<-data.frame(y)
@@ -246,8 +246,8 @@ for(j in 1:k){
 	ETA=which(H[j,]==FALSE)
 	EPS=(Pred %in% ETA)
 	EPS=which(EPS==TRUE)
-	#datos=datos[EPS,]
-	datos[,1]=Emin[j]
+	datos=datos[EPS,]
+	#datos[,1]=Emin[j]
 	x.scaled=scale(datos[,-c(1,2,28,29,30,32)],center=Mmin[j,],scale=SDmin[j,])
 	y<-cbind(datos[,1],x.scaled)
 	datos2<-data.frame(y)
