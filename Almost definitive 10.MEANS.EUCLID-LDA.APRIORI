@@ -1,0 +1,334 @@
+rm(list =ls())
+library(cclust)
+require(MASS)
+
+ss=1594
+ptm <- proc.time()
+
+SQLReadDataModExp <- function(Registro_Inicial,Registro_Final,mes) 
+{
+	library(RODBC)
+	chanel <- odbcConnect("Ral98",uid = "TEMPRUSER", pwd = "Mexic.17")
+	cadsql<-c('')
+	cadsql<- paste('SELECT',
+	'[EXPORTADO]',
+	',[dn]',
+	',isnull([MESES_ANTIGUEDAD],0) as [MESES_ANTIGUEDAD] ',
+	',isnull([ARPM_1],0) as [ARPM_1]',
+	',isnull([ARPM_2],0) as [ARPM_2]',
+	',isnull([ARPM_3],0) as [ARPM_3]',
+	',isnull([ARPU_VOICE_1],0) as [ARPU_VOICE_1]',
+	',isnull([ARPU_VOICE_2],0) as [ARPU_VOICE_2]',
+	',isnull([ARPU_VOICE_3],0) as [ARPU_VOICE_3]',
+	',isnull([ARPU_SMS_1],0) as [ARPU_SMS_1]',
+	',isnull([ARPU_SMS_2],0) as [ARPU_SMS_2]',
+	',isnull([ARPU_SMS_3],0) as [ARPU_SMS_3]',
+	',isnull([ARPU_DATA_1],0) as [ARPU_DATA_1]',
+	',isnull([ARPU_DATA_2],0) as [ARPU_DATA_2]',
+	',isnull([ARPU_DATA_3],0) as [ARPU_DATA_3]',
+	',isnull([ARPU_OTHER_1],0) as [ARPU_OTHER_1]',
+	',isnull([ARPU_OTHER_2],0) as [ARPU_OTHER_2]',
+	',isnull([ARPU_OTHER_3],0) as [ARPU_OTHER_3]',
+	',isnull([INGRESOS_SVA_1],0) as [INGRESOS_SVA_1]',
+	',isnull([INGRESOS_SVA_2],0) as [INGRESOS_SVA_2]',
+	',isnull([INGRESOS_SVA_3],0) as [INGRESOS_SVA_3]',
+	',isnull([MTO_IVA_RECARGA_1],0) as [MTO_IVA_RECARGA_1]',
+	',isnull([RECARGAS_1],0) as [RECARGAS_1]',
+	',isnull([MTO_IVA_RECARGA_2],0) as [MTO_IVA_RECARGA_2]',
+	',isnull([RECARGAS_2],0) as [RECARGAS_2]',
+	',isnull([MTO_IVA_RECARGA_3],0) as [MTO_IVA_RECARGA_3]',
+	',isnull([RECARGAS_3],0) as [RECARGAS_3]',
+	',isnull([CVE_EQUIPO],0) as [CVE_EQUIPO]',
+	',isnull([GAMA_ALTA_EQUIPO_PRIMERO],0) as [GAMA_ALTA_EQUIPO_PRIMERO]',
+	',isnull([CVE_EQUIPO_ULTIMO],0) as [CVE_EQUIPO_ULTIMO]',
+	',case when isnull([GAMA_ALTA_EQUIPO_ULTIMO],0)>0 then 1 else 0 end as 	[GAMA_ALTA_EQUIPO_ULTIMO]',
+	',isnull([QUEJAS_1],0)+isnull([QUEJAS_2],0)+isnull([QUEJAS_3],0) as [QUEJAS]',
+	' FROM [dbo].[JIC_MODEXP2]',
+	' where',
+	'cve_mes=', as.character(mes),
+	'and id_num between', as.character(Registro_Inicial),' and', as.character(Registro_Final),' order by id_num desc',sep=' ')
+	aux <- sqlQuery(chanel, cadsql)
+	close(chanel)
+	return(aux)
+}
+
+
+PrepararDatoskmeans <- function(dat) 
+{
+	rownames(dat)<-dat$dn
+	for(j in 1:ncol(dat))
+		dat[,j]<-as.numeric(dat[,j])
+	x.scaled<-scale(dat[,-1])
+	y<-cbind(dat[,1],x.scaled)
+	dat<-data.frame(y)
+	colnames(dat)[1]<-'EXPORTADO'
+	#dat[,1]<-Eini
+	return<-dat
+
+}
+
+
+#for(step in 1:45){
+for(step in 5:5){
+#step<-1
+set.seed(ss)
+
+a=10
+b=c()
+k=10
+F=c()
+FK=array(list(),1)
+G=c()
+H=c()
+HK=array(list(),1)
+Eini=0
+E0=c()
+Emin=c()
+u=1
+M0=c()
+SD0=c()
+Mmin=c()
+SDmin=c()
+Mlda=c()
+SDlda=c()
+
+base=20000*(step-1)+1
+fin=20000*step
+datos <- SQLReadDataModExp(base,fin,201409)
+for(j in 1:ncol(datos))
+		datos[,j]<-as.numeric(datos[,j])
+	
+
+
+
+
+Mini=colMeans(datos[,-c(1,2,28,29,30,32)])
+SDini=apply(datos[,-c(1,2,28,29,30,32)],2,sd)
+datos2<-PrepararDatoskmeans(datos[,-c(2,28,29,30,32)])
+
+result=cclust(as.matrix(datos2),a,iter.max = 5000)
+x=table(result$cluster,datos[,1])
+Ini=result
+Eini=mean(result$centers[,1])
+
+for(j in 1:k){
+	h=0
+	while(min(x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1]))==0){
+		F=rbind(F,x[,2]==0)
+		datos=datos[x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])!=0,]
+		M0=rbind(M0,colMeans(datos[,-c(1,2,28,29,30,32)]))
+		SD0=rbind(SD0,apply(datos[,-c(1,2,28,29,30,32)],2,sd))
+		datos2<-PrepararDatoskmeans(datos[,-c(2,28,29,30,32)])
+		
+		result=cclust(as.matrix(datos2),a,iter.max = 5000)
+		FK[[u]]=result
+		E0=cbind(E0,mean(result$centers[,1]))
+		u=u+1
+		h=h+1
+		x=table(result$cluster,datos[,1])
+		}
+	G=c(G,h)
+	H=rbind(H,x[,2]/(x[,1]+x[,2])==min(x[,2]/(x[,1]+x[,2])))
+	datos=datos[x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])>min(x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])),]
+	Mmin=rbind(Mmin,colMeans(datos[,-c(1,2,28,29,30,32)]))
+	SDmin=rbind(SDmin,apply(datos[,-c(1,2,28,29,30,32)],2,sd))
+	datos2<-PrepararDatoskmeans(datos[,-c(2,28,29,30,32)])
+	
+	result=cclust(as.matrix(datos2),a,iter.max = 5000)
+	HK[[j]]=result
+	Emin=cbind(Emin,mean(result$centers[,1]))
+	x=table(result$cluster,datos[,1])
+	}
+
+h=0
+while(min(x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1]))==0){
+	F=rbind(F,x[,2]==0)
+	datos=datos[x[result$cluster,2]/(x[result$cluster,2]+x[result$cluster,1])!=0,]
+	M0=rbind(M0,colMeans(datos[,-c(1,2,28,29,30,32)]))
+	SD0=rbind(SD0,apply(datos[,-c(1,2,28,29,30,32)],2,sd))
+	datos2<-PrepararDatoskmeans(datos[,-c(2,28,29,30,32)])
+	
+	result=cclust(as.matrix(datos2),a,iter.max = 5000)
+	FK[[u]]=result
+	E0=cbind(E0,mean(result$centers[,1]))
+	u=u+1
+	h=h+1
+	x=table(result$cluster,datos[,1])
+	}
+G=c(G,h)
+d=proc.time() - ptm
+b=rbind(b,c(d[3]/60,sum(x),sum(x[,2]),sum(x[,2])/sum(x)))
+F
+G
+H
+
+sum(x)
+colSums(x)
+sum(x[,2])/sum(x)
+nrow(datos)
+
+
+n=10
+LDA=array(list(),1)
+DD=c()
+A=matrix(0,10)
+B=matrix(0,10)
+C=matrix(0,10)
+D=matrix(0,10)
+E=matrix(0,10)
+V=c()
+
+
+for(i in 1:n){
+	x=datos[result$cluster==i,-c(2,28,29,30)]
+	d=apply(x[,-1],2,sd)
+	d=(d!=0)
+	DD=rbind(DD,d)
+	Mlda=rbind(Mlda,colMeans(x[,-1]))
+	SDlda=rbind(SDlda,apply(x[,-1],2,sd))
+	x=x[,d]
+	y<-PrepararDatoskmeans(x)
+
+	LDA[[i]]=lda(formula=EXPORTADO~.,data=y)
+	w=predict(object=LDA[[i]],newdata=y[,-1])
+	a=w$class
+	b=as.numeric(a)-1
+	A[i]=sum(b)
+	r=(x$EXPORTADO==b & b==1)
+	q=as.numeric(r)
+	B[i]=sum(q)
+	C[i]=100*sum(q)/sum(b)
+	D[i]=sum(b)*4265446/20000
+	E[i]=(sum(q)/sum(b))*(sum(b)*4265446/20000)
+	}
+
+cbind(A,B,C,D,E)
+colSums(cbind(A,B,D,E))
+sum(B)*100/sum(A)
+
+#-----------------------------------
+set.seed(ss)
+k=10
+#datos <- SQLReadDataModExp(1,4265446,201409)
+datos <- SQLReadDataModExp(1,20000,201409)
+rownames(datos)<-datos$dn
+for(j in 1:ncol(datos))
+		datos[,j]<-as.numeric(datos[,j])
+
+#datos[,1]<-Eini
+x.scaled=scale(datos[,-c(1,2,28,29,30,32)],center=Mini,scale=SDini)
+y<-cbind(datos[,1],x.scaled)
+datos2<-data.frame(y)
+colnames(datos2)[1]<-'EXPORTADO'
+
+
+
+
+Pred=predict(Ini,as.matrix(datos2))$cluster
+
+w=1
+for(j in 1:k){
+	if(G[j]!=0){
+		for(m in 1:G[j]){
+			ETA=which(F[w,]==FALSE)
+			EPS=(Pred %in% ETA)
+			EPS=which(EPS==TRUE)
+			#datos=datos[EPS,]
+			datos[,1]=E0[w]
+			x.scaled=scale(datos[,-c(1,2,28,29,30,32)],center=M0[w,], scale=SD0[w,])
+			y<-cbind(datos[,1],x.scaled)
+			datos2<-data.frame(y)
+			colnames(datos2)[1]<-'EXPORTADO'
+			Pred=predict(FK[[w]],as.matrix(datos2))$cluster
+			w=w+1
+			}
+		}				
+	ETA=which(H[j,]==FALSE)
+	EPS=(Pred %in% ETA)
+	EPS=which(EPS==TRUE)
+	#datos=datos[EPS,]
+	datos[,1]=Emin[j]
+	x.scaled=scale(datos[,-c(1,2,28,29,30,32)],center=Mmin[j,],scale=SDmin[j,])
+	y<-cbind(datos[,1],x.scaled)
+	datos2<-data.frame(y)
+	colnames(datos2)[1]<-'EXPORTADO'
+	Pred=predict(HK[[j]],as.matrix(datos2))$cluster
+	}
+
+
+
+
+if(G[11]!=0){
+	for(m in 1:G[11]){
+		ETA=which(F[w,]==FALSE)
+		EPS=(Pred %in% ETA)
+		EPS=which(EPS==TRUE)
+		datos=datos[EPS,]
+		#datos[,1]=E0[w]
+		x.scaled=scale(datos[,-c(1,2,28,29,30,32)],center=M0[w,],scale=SD0[w,])
+		y<-cbind(datos[,1],x.scaled)
+		datos2<-data.frame(y)
+		colnames(datos2)[1]<-'EXPORTADO'
+		Pred=predict(FK[[w]],as.matrix(datos2))$cluster
+		print(w)
+		print(m)
+		w=w+1
+		}
+	}
+
+
+
+A1=matrix(0,10)
+B1=matrix(0,10)
+C1=matrix(0,10)
+D1=matrix(0,10)
+E1=matrix(0,10)
+
+datos=datos[,-c(2,28,29,30)]
+
+
+Final=c()
+for(i in 1:10){
+	data=datos
+	data=data[Pred==i,]
+	data=data[,DD[i,]]
+	Mldatemp=Mlda[i,]
+	Mldatemp=Mldatemp[DD[i,]]
+	SDldatemp=SDlda[i,]
+	SDldatemp=SDldatemp[DD[i,]]
+	x.scaled=scale(data[,-1],center=Mldatemp,scale=SDldatemp)
+	w=predict(object=LDA[[i]],newdata=data.frame(x.scaled))
+	a=w$class
+	b=as.numeric(a)-1
+	A1[i]=sum(b)
+	r=(data$EXPORTADO==b & b==1)
+	q=as.numeric(r)
+	B1[i]=sum(q)
+	C1[i]=100*sum(q)/sum(b)
+	D1[i]=sum(b)*4265446/20000
+	E1[i]=(sum(q)/sum(b))*(sum(b)*4265446/20000)
+	MM=cbind(rownames(data),as.numeric(w$class)-1)
+	MM=MM[MM[,2]==1,]
+	Final=rbind(Final,MM)
+	}
+Final=Final[,-2]
+Final=cbind(rep('sep-2014',length(Final)),rep(ss,length(Final)),rep(step,length(Final)),rep('KMEANS.EUCLID-LDA.APRIORI',length(Final)),Final,rep(Sys.time(),length
+
+(Final)))
+rownames(Final)<-NULL
+Final=data.frame(Final)
+colnames(Final)=c('Fecha','Semilla','N.Corrida','Metodo','DN')
+
+#chanel <- odbcConnect("Ral98",uid = "TEMPRUSER", pwd = "Mexic.17")
+#sqlSave(chanel,Final, "TestResult", append = TRUE)
+#close(chanel)
+
+cbind(A1,B1,C1,D1,E1)
+colSums(cbind(A1,B1,D1,E1))
+sum(B1)*100/sum(A1)
+sum(as.numeric(Final[,2]))
+
+}
+
+
+
