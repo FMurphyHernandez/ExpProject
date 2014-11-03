@@ -4,7 +4,7 @@ library(rpart)
 
 ss=0
 a=.0001
-b=100
+b=5
 
 ptm <- proc.time()
 
@@ -75,15 +75,15 @@ rownames(DATOS)=DATOS[,2]
 
 
 
-for(step in 5:6){
+for(step in 1:5){
 
 
 
 
 
 
-base=20000*(step-1)+1
-fin=20000*step
+base=100000*(step-1)+1
+fin=100000*step
 
 
 #datos <- SQLReadDataModExp(1,100000,201409)
@@ -94,7 +94,7 @@ for(j in 1:ncol(datos))
 
 
 
-RP=rpart(formula=EXPORTADO~.,data=datos[,-2],control = rpart.control(maxsurrogate = 3,cp = 0.0001, minsplit = b, minbucket = 5))
+RP=rpart(formula=as.factor(EXPORTADO)~.,data=datos[,-2],control = rpart.control(maxsurrogate = 10,cp = 0, minsplit = b, minbucket = 5))
 SINGE=aov(formula=EXPORTADO~.,data=datos[,-2])
 Sing=which(summary(SINGE)[[1]][[4]]==max(summary(SINGE)[[1]][[4]],na.rm=TRUE))
 SG=colnames(datos)[Sing+2]
@@ -108,10 +108,11 @@ rownames(datos)=datos[,2]
 
 for(j in 1:ncol(datos))
 		datos[,j]<-as.numeric(datos[,j])
-Pred=predict.rpart(object=RP, new=datos[,c(-1,-2)],type = c("prob"))
+Pred=predict(object=RP, new=datos[,c(-1,-2)],type = c("prob"))
 
 Final=Pred
-A=summary(Pred)[2]
+#A=summary(Pred)[2]
+A=.5
 for(i in 1:length(Pred)){
 	if(Pred[i]>A)Final[i]=1
 	if(Pred[i]<=A)Final[i]=0
@@ -121,7 +122,7 @@ Final=Final[Final[,1]==1,]
 Final=Final[,-1]
 Final=cbind(Final,rep(SG,length(Final)))
 FF=nrow(Final)
-Final=cbind(rep('201409',FF),rep(ss,FF),rep(step,FF),rep('ANOVA-DTREE.100-.0001',FF),Final,rep(as.character(Sys.time()),FF),rep(20000,FF))
+Final=cbind(rep('201409',FF),rep(ss,FF),rep(step,FF),rep('ANOVA-DTREE.10k-10k-10-0-5',FF),Final,rep(as.character(Sys.time()),FF),rep(20000,FF))
 rownames(Final)<-NULL
 Final=data.frame(Final)
 colnames(Final)=c('Fecha','Semilla','N.Corrida','Metodo','DN','Motivo','Fecha.Ejec','Tam_Muestra')
@@ -142,10 +143,11 @@ Final[,8]=as.numeric(Final[,8])
 
 
 chanel <- odbcConnect("Ral98",uid = "TEMPRUSER", pwd = "Mexic.17")
-sqlSave(chanel,Final, "ModeloExportadosPrueba31415159",append=TRUE)
+sqlSave(chanel,Final, "ModeloExportadosPrueba2.718",append=TRUE)
 close(chanel)
 
 print(step)
+print(ptm)
 rm(list=ls()[-which(ls()%in% c('DATOS','step','ptm','ss','SQLReadDataModExp','a','b'))])
 
 }
