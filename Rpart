@@ -1,0 +1,156 @@
+rm(list =ls())
+library(rpart)
+
+
+ss=0
+a=.0001
+b=100
+
+ptm <- proc.time()
+
+
+SQLReadDataModExp <- function(Registro_Inicial,Registro_Final,mes) 
+{
+	library(RODBC)
+	chanel <- odbcConnect("Ral98",uid = "TEMPRUSER", pwd = "Mexic.17")
+	cadsql<-c('')
+	cadsql<- paste('SELECT',
+	'[EXPORTADO]',
+	',[dn]',
+	',isnull([MESES_ANTIGUEDAD],0) as [MESES_ANTIGUEDAD] ',
+	',isnull([ARPM_1],0) as [ARPM_1]',
+	',isnull([ARPM_2],0) as [ARPM_2]',
+	',isnull([ARPM_3],0) as [ARPM_3]',
+	',isnull([ARPU_VOICE_1],0) as [ARPU_VOICE_1]',
+	',isnull([ARPU_VOICE_2],0) as [ARPU_VOICE_2]',
+	',isnull([ARPU_VOICE_3],0) as [ARPU_VOICE_3]',
+	',isnull([ARPU_SMS_1],0) as [ARPU_SMS_1]',
+	',isnull([ARPU_SMS_2],0) as [ARPU_SMS_2]',
+	',isnull([ARPU_SMS_3],0) as [ARPU_SMS_3]',
+	',isnull([ARPU_DATA_1],0) as [ARPU_DATA_1]',
+	',isnull([ARPU_DATA_2],0) as [ARPU_DATA_2]',
+	',isnull([ARPU_DATA_3],0) as [ARPU_DATA_3]',
+	',isnull([ARPU_OTHER_1],0) as [ARPU_OTHER_1]',
+	',isnull([ARPU_OTHER_2],0) as [ARPU_OTHER_2]',
+	',isnull([ARPU_OTHER_3],0) as [ARPU_OTHER_3]',
+	',isnull([INGRESOS_SVA_1],0) as [INGRESOS_SVA_1]',
+	',isnull([INGRESOS_SVA_2],0) as [INGRESOS_SVA_2]',
+	',isnull([INGRESOS_SVA_3],0) as [INGRESOS_SVA_3]',
+	',isnull([MTO_IVA_RECARGA_1],0) as [MTO_IVA_RECARGA_1]',
+	',isnull([RECARGAS_1],0) as [RECARGAS_1]',
+	',isnull([MTO_IVA_RECARGA_2],0) as [MTO_IVA_RECARGA_2]',
+	',isnull([RECARGAS_2],0) as [RECARGAS_2]',
+	',isnull([MTO_IVA_RECARGA_3],0) as [MTO_IVA_RECARGA_3]',
+	',isnull([RECARGAS_3],0) as [RECARGAS_3]',
+	',isnull([CVE_EQUIPO],0) as [CVE_EQUIPO]',
+	',isnull([GAMA_ALTA_EQUIPO_PRIMERO],0) as [GAMA_ALTA_EQUIPO_PRIMERO]',
+	',isnull([CVE_EQUIPO_ULTIMO],0) as [CVE_EQUIPO_ULTIMO]',
+	',case when isnull([GAMA_ALTA_EQUIPO_ULTIMO],0)>0 then 1 else 0 end as 	[GAMA_ALTA_EQUIPO_ULTIMO]',
+	',isnull([QUEJAS_1],0)+isnull([QUEJAS_2],0)+isnull([QUEJAS_3],0) as [QUEJAS]',
+	' FROM [dbo].[JIC_MODEXP2]',
+	' where',
+	'cve_mes=', as.character(mes),
+	'and id_num between', as.character(Registro_Inicial),' and', as.character(Registro_Final),' order by id_num desc',sep=' ')
+	aux <- sqlQuery(chanel, cadsql)
+	close(chanel)
+	return(aux)
+}
+
+
+
+
+
+
+
+#DATOS <- SQLReadDataModExp(1,4265446,201409)
+
+DATOS <- SQLReadDataModExp(1,100000,201409)
+
+rownames(DATOS)=DATOS[,2]
+
+
+
+
+
+
+
+
+for(step in 5:6){
+
+
+
+
+
+
+base=20000*(step-1)+1
+fin=20000*step
+
+
+#datos <- SQLReadDataModExp(1,100000,201409)
+datos <- SQLReadDataModExp(base,fin,201409)
+for(j in 1:ncol(datos))
+		datos[,j]<-as.numeric(datos[,j])
+	
+
+
+
+RP=rpart(formula=EXPORTADO~.,data=datos[,-2],control = rpart.control(maxsurrogate = 3,cp = 0.0001, minsplit = b, minbucket = 5))
+SINGE=aov(formula=EXPORTADO~.,data=datos[,-2])
+Sing=which(summary(SINGE)[[1]][[4]]==max(summary(SINGE)[[1]][[4]],na.rm=TRUE))
+SG=colnames(datos)[Sing+2]
+
+
+
+#-----------------------------------
+
+datos=DATOS
+rownames(datos)=datos[,2]
+
+for(j in 1:ncol(datos))
+		datos[,j]<-as.numeric(datos[,j])
+Pred=predict.rpart(object=RP, new=datos[,c(-1,-2)],type = c("prob"))
+
+Final=Pred
+A=summary(Pred)[2]
+for(i in 1:length(Pred)){
+	if(Pred[i]>A)Final[i]=1
+	if(Pred[i]<=A)Final[i]=0
+	}
+Final=cbind(Final,rownames(datos))
+Final=Final[Final[,1]==1,]
+Final=Final[,-1]
+Final=cbind(Final,rep(SG,length(Final)))
+FF=nrow(Final)
+Final=cbind(rep('201409',FF),rep(ss,FF),rep(step,FF),rep('ANOVA-DTREE.100-.0001',FF),Final,rep(as.character(Sys.time()),FF),rep(20000,FF))
+rownames(Final)<-NULL
+Final=data.frame(Final)
+colnames(Final)=c('Fecha','Semilla','N.Corrida','Metodo','DN','Motivo','Fecha.Ejec','Tam_Muestra')
+
+Final[,1]=as.character(Final[,1])
+Final[,2]=as.character(Final[,2])
+Final[,2]=as.numeric(Final[,2])
+Final[,3]=as.character(Final[,3])
+Final[,3]=as.numeric(Final[,3])
+Final[,4]=as.character(Final[,4])
+Final[,5]=as.character(Final[,5])
+Final[,6]=as.character(Final[,6])
+Final[,7]=as.character(Final[,7])
+Final[,8]=as.character(Final[,8])
+Final[,8]=as.numeric(Final[,8])
+
+
+
+
+chanel <- odbcConnect("Ral98",uid = "TEMPRUSER", pwd = "Mexic.17")
+sqlSave(chanel,Final, "ModeloExportadosPrueba31415159",append=TRUE)
+close(chanel)
+
+print(step)
+rm(list=ls()[-which(ls()%in% c('DATOS','step','ptm','ss','SQLReadDataModExp','a','b'))])
+
+}
+
+
+
+
+proc.time() - ptm
